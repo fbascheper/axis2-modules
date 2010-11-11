@@ -1,0 +1,115 @@
+import org.apache.ivy.core.settings.IvySettings
+import org.apache.ivy.core.module.descriptor.ModuleDescriptor
+import org.apache.ivy.plugins.parser.xml.XmlModuleDescriptorParser
+
+
+def gradleUserHomeDir = gradle.startParameter.gradleUserHomeDir
+
+println "Gradle User Home Dir = " + gradleUserHomeDir
+
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+
+    sourceCompatibility = 1.5
+    targetCompatibility = 1.5
+
+    def ivy_settings_url = 'http://172.30.247.68/ivy-settings/ivy.settings.xml'
+    def local_mvn_repo   = 'file://D:/.m2/repository'
+
+    ivySettingsURL = new java.net.URL(ivy_settings_url)
+    IvySettings ivySettings = new IvySettings()
+    ivySettings.load(ivySettingsURL)
+
+    repositories {
+       mavenRepo urls: "file://" + gradleUserHomeDir + "/cache/"
+       mavenRepo urls: local_mvn_repo
+
+       add(ivySettings.getResolver("ivy-external-resolver")) {
+         name = 'DUO-ivy-external-resolver'
+       }
+       
+       add(ivySettings.getResolver("ivy-internal-lookup-chain")) {
+         name = 'DUO-ivy-internal-lookup-chain'
+       }
+       
+       mavenRepo urls: "http://repository.jboss.com/maven2"
+       mavenRepo urls: "http://hibernate-generic-dao.googlecode.com/svn/trunk/maven-repo"
+       mavenRepo urls: 'http://gradle.artifactoryonline.com/gradle/plugins'               //idea plugin
+       mavenCentral()
+    }
+
+
+    configurations {
+        provided {
+            transitive = false
+        }
+    }
+
+    sourceSets.main.compileClasspath += configurations.provided
+    
+    metaInf = [
+        files('src/meta-inf/module.xml')
+    ]
+
+    slf4jVersion = '1.6.1'
+    libraries = [
+            // axis2
+            axis2_kernel:   'org.apache.axis2:axis2-kernel:1.4',
+            axis2_neethi:   'org.apache.neethi:neethi:2.0.4',
+            axis2_axiom:    'org.apache.ws.commons.axiom:axiom-api:1.2.7',
+            
+            // logging
+            slf4j_api:      'org.slf4j:slf4j-api:' + slf4jVersion,
+            jcl_slf4j:      'org.slf4j:jcl-over-slf4j:' + slf4jVersion,
+    
+            // testing
+            slf4j_simple:   'org.slf4j:slf4j-simple:' + slf4jVersion,
+            junit:          'junit:junit:4.7',
+    ]
+    
+
+    dependencies {
+        // compile group: 'org.apache.axis2', name: 'axis2-kernel', version: '1.4'
+
+        compile    ( libraries.slf4j_api )
+
+        provided   ( libraries.axis2_kernel )
+        provided   ( libraries.axis2_neethi )
+        provided   ( libraries.axis2_axiom )
+
+        testCompile( libraries.junit )
+    }
+
+
+
+    version = '1.0'
+
+    jar {
+        extension = 'mar'
+        manifest.mainAttributes(
+                'Implementation-Version': version,
+                'Gradle-Version': gradle.gradleVersion,
+                'Created-By': System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + " )",
+                'Build-Date': new java.util.Date().toString(),
+        )
+    }
+
+    javadoc {
+      appName = 'Axis2 SOAP :ogger module'
+      project.configure(options) {
+        memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+        charSet = "UTF-8"
+        docTitle = "$appName"
+        windowTitle = "$appName"
+        header = "<b>$appName</b>"
+        bottom = "Contact via email for feedback."
+        author = "true"
+        use = "true"
+        links("http://java.sun.com/j2ee/1.4/docs/api", "http://java.sun.com/j2se/1.5.0/docs/api")
+    
+      }
+    }
+
+}

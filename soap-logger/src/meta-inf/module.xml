@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="SOAPLoggingModule" class="com.github.fbascheper.axis2modules.soaplogger.SOAPLoggingModule">
+	<parameter name="logger">com.github.fbascheper.axis2modules.soaplogger.SOAPLoggingHandler</parameter>
+	<InFlow>
+		<handler name="InFlowLogHandler" class="com.github.fbascheper.axis2modules.soaplogger.SOAPLoggingHandler">
+			<order phase="SOAPLoggingPhase" />
+		</handler>
+	</InFlow>
+	<OutFlow>
+		<handler name="OutFlowLogHandler" class="com.github.fbascheper.axis2modules.soaplogger.SOAPLoggingHandler">
+			<order phase="SOAPLoggingPhase" />
+		</handler>
+	</OutFlow>
+	<OutFaultFlow>
+		<handler name="FaultOutFlowLogHandler" class="com.github.fbascheper.axis2modules.soaplogger.SOAPLoggingHandler">
+			<order phase="SOAPLoggingPhase" />
+		</handler>
+	</OutFaultFlow>
+	<InFaultFlow>
+		<handler name="FaultInFlowLogHandler" class="com.github.fbascheper.axis2modules.soaplogger.SOAPLoggingHandler">
+			<order phase="SOAPLoggingPhase" />
+		</handler>
+	</InFaultFlow>
+</module>
